@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_list/data/categories.dart';
+import 'package:flutter_shopping_list/models/category.dart';
+import 'package:flutter_shopping_list/widgets/edit_item.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -24,17 +26,20 @@ class _GroceryListState extends State<GroceryList> {
     _loadItems();
   }
 
+  // Load all items.
   void _loadItems() async {
     final url = Uri.https(
         'flutter-shopping-list-2b013-default-rtdb.firebaseio.com',
         'shopping-list.json');
     final response = await http.get(url);
 
-    final Map<String, dynamic> listData =
-        json.decode(response.body);
+    final Map<String, dynamic> listData = json.decode(response.body);
     final List<GroceryItem> _loadedItems = [];
     for (final item in listData.entries) {
-      final category = categories.entries.firstWhere((catItem) => catItem.value.title == item.value['category']).value;
+      final category = categories.entries
+          .firstWhere(
+              (catItem) => catItem.value.title == item.value['category'])
+          .value;
       _loadedItems.add(
         GroceryItem(
           id: item.key,
@@ -49,6 +54,7 @@ class _GroceryListState extends State<GroceryList> {
     });
   }
 
+  // Add new item.
   void _addItem() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -59,6 +65,18 @@ class _GroceryListState extends State<GroceryList> {
     _loadItems();
   }
 
+  // Edit Item.
+  void _editItem(GroceryItem groceryItemUpdate) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => EditItem(groceryItemUpdate: groceryItemUpdate),
+      ),
+    );
+
+    _loadItems();
+  }
+
+  // Delete Item.
   void _removeItem(GroceryItem item) {
     setState(() {
       _groceryItems.remove(item);
@@ -84,7 +102,14 @@ class _GroceryListState extends State<GroceryList> {
               height: 24,
               color: _groceryItems[index].category.color,
             ),
-            trailing: Text(_groceryItems[index].quantity.toString()),
+            trailing: ElevatedButton(
+                onPressed: () {
+                  _editItem(_groceryItems[index]);
+                },
+                child: const Icon(
+                  Icons.edit,
+                  color: Color.fromARGB(255, 183, 34, 210),
+                )),
           ),
         ),
       );
