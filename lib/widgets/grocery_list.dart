@@ -77,9 +77,21 @@ class _GroceryListState extends State<GroceryList> {
   }
 
   // Delete Item.
-  void _removeItem(GroceryItem item) {
-    setState(() {
+  void _removeItem(GroceryItem item) async {
+    // Delete Request.
+    final url = Uri.https(
+        'flutter-shopping-list-2b013-default-rtdb.firebaseio.com',
+        'shopping-list/${item.id}.json');
+    final response = await http.delete(
+      url,
+    );
+    print(response.body);
+    print(response.statusCode);
+
+    // Refresh state.
+    setState(() async {
       _groceryItems.remove(item);
+      _loadItems();
     });
   }
 
@@ -95,21 +107,26 @@ class _GroceryListState extends State<GroceryList> {
             _removeItem(_groceryItems[index]);
           },
           key: ValueKey(_groceryItems[index].id),
-          child: ListTile(
-            title: Text(_groceryItems[index].name),
-            leading: Container(
-              width: 24,
-              height: 24,
-              color: _groceryItems[index].category.color,
-            ),
-            trailing: ElevatedButton(
+          child: Card(
+            child: ListTile(
+              title: Text(_groceryItems[index].name),
+              leading: _groceryItems[index].category.icon,
+              trailing: ElevatedButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(
+                    Color.fromARGB(255, 84, 24, 215),
+                  ),
+                ),
                 onPressed: () {
                   _editItem(_groceryItems[index]);
                 },
                 child: const Icon(
                   Icons.edit,
-                  color: Color.fromARGB(255, 183, 34, 210),
-                )),
+                  size: 25,
+                  color: Color.fromARGB(255, 182, 148, 255),
+                ),
+              ),
+            ),
           ),
         ),
       );
@@ -120,6 +137,10 @@ class _GroceryListState extends State<GroceryList> {
         title: const Text('Your Groceries'),
         actions: [
           IconButton(
+            style: const ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll<Color>(
+                  Color.fromARGB(255, 84, 24, 215)),
+            ),
             onPressed: _addItem,
             icon: const Icon(Icons.add),
           ),

@@ -117,12 +117,7 @@ class _NewItemState extends State<NewItem> {
                               value: category.value,
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 16,
-                                    height: 16,
-                                    color: category.value.color,
-                                  ),
-                                  const SizedBox(width: 6),
+                                  category.value.icon,
                                   Text(category.value.title)
                                 ],
                               ),
